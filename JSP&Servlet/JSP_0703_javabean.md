@@ -1,0 +1,334 @@
+## JSP에서 자바객체를 사용하는 방법
+
+
+
+>JSP 페이지의 주용 기능 중 하나는 데이터를 보여주는 기능이다. 흔하게 볼 수 있는 게시판을 예로 들면 글 목록 보기, 글쓰기, 글 읽기 등의 기능이 이에 해당한다. 
+>
+>그런데 이런 데이터를 보여주는 기능과 단순하게 화면을 출력하는 부분이 하나의 JSP에 뒤섞여 있으면 문제가 생긴다. 기능을 확장하거나 코드를 재사용하기가 상당히 어려워진다. 그렇기에 JSP에서는 데이터를 자바빈(JavaBean)이라는 클래스에 담아서 값을 보여준다.
+>
+>
+>
+>#### Java Beans : 
+>
+>커피의 기본 = 커피콩
+>
+>Bean 혹은 Java Beans = class (자바의 기본)
+>
+>getter/setter를 가지는 데이터 표현 객체 (Dto같은 아이들)
+>
+>
+
+#### jsp : 태그
+
+>Score sc = new Score(); 와 같은말
+>
+>scope="session" : session scope 에 해당 객체가 없다면 객체를 만들어준다 이미 있으면 값을 받아와서 저장해줌
+>
+>scope가 별도로 지정이 되어있지 않으면 해당 페이지의 scope를 이용한다
+>
+>```jsp
+><jsp:useBean id="sc" class="com.my.score.Score" scope="session"></jsp:useBean>
+>```
+>
+>
+>
+>usebeantest.jsp
+>
+>```jsp
+><!-- Java Beans : getter/setter를 가지는 데이터 표현 객체 (Dto같은 아이들) -->
+>	<h1>useBean</h1>
+>		
+>	<jsp:useBean id="sc" class="com.my.score.Score" scope="session"></jsp:useBean>
+>	<!-- Score sc = new Score(); 와 같은말 -->
+>	<!-- 
+>		scope="session" : session scope 에 해당 객체가 없다면 객체를 만들어준다 
+>		이미 있으면 값을 받아와서 저장해줌
+>	-->
+>	
+>	<jsp:setProperty property="name" name="sc" value="홍길동"/>
+>	<!-- sc.setName("홍길동"); set객체를 호출해준다 -->
+>	
+>	<jsp:setProperty property="kor" name="sc" value="100"/>
+>	<jsp:setProperty property="eng" name="sc" value="55"/>
+>	<jsp:setProperty property="math" name="sc" value="40"/>
+>	<jsp:setProperty property="kor" name="sc" value="100"/>
+>	
+>	
+>	<jsp:getProperty property="name" name="sc"/>
+>	<!-- sc.getName(); get객체를 호출한다 -->
+>	<jsp:getProperty property="kor" name="sc"/>
+>	<jsp:getProperty property="eng" name="sc"/>
+>	<jsp:getProperty property="math" name="sc"/>
+>	
+>	<button onclick="location.href='res.jsp'">res...</button>
+>```
+>
+>
+>
+>위와 button location.href로 연결된 res.jsp
+>
+>```jsp
+><h1>${sc.name }님 환영합니다</h1>
+>	
+>	<jsp:useBean id="sc" class="com.my.score.Score" scope="session"></jsp:useBean>
+>	<!-- 
+>		scope="session" : session scope 에 해당 객체가 없다면 객체를 만들어준다 
+>		이미 있으면 값을 받아와서 저장해줌
+>	-->
+>	
+>	<jsp:getProperty property="name" name="sc"/>
+>	<jsp:getProperty property="kor" name="sc"/>
+>	<jsp:getProperty property="eng" name="sc"/>
+>	<jsp:getProperty property="math" name="sc"/>
+>```
+>
+>
+
+
+
+##### **JSP에서 자바빈을 사용하기 위한 액션태그 3가지**
+
+>
+>
+>- 자바빈 액션태그는 \<jsp:useBean>, \<jsp:getProperty>, \<jsp:setProperty> 3가지가 있다.
+>
+>  
+>
+>**자바빈 프로퍼티**
+>
+>\- 프로퍼티는 자바빈에 저장되어 있는 값을 나타낸다.
+>
+>\- 메서드 이름을 사용해서 프로퍼티의 이름을 결정한다.
+>
+>\- 값을 설정하는 메서드는 프로퍼티 이름의 첫 글자를 대문자로 변환한 문자열 앞에 set을 붙인다.
+>
+>\- 값을 읽어오는 메서드는 프로퍼티 이름의 첫 글자를 대문자로 변환한 문자열 앞에 get을 붙인다.
+>
+>\- 프로퍼티의 타입이 boolean일 경우 get 대신에 is를 앞에 붙일 수도 있다.
+>
+>
+
+**1. \<jsp:useBean>**
+
+>
+>
+>```jsp
+><jsp:useBean id="빈이름" class="자바빈 클래스 이름" scope="범위" />
+>```
+>
+><태그의 속성>
+>
+>- id : JSP페이지에서 자바빈 객체에 접근 할 때 사용하는 이름이다.
+>- class : 패키지 이름을 포함한 자바빈 클래스의 완전한 이름을 입력
+>- scope : 자바빈 객체가 저장될 영역을 지정. page, request, session, application 중 하나를 값으로 갖는다. 기본값은 page 
+>
+>
+>
+>태그에서 id 속성에서 지정한 이름의 속성 값이 있을 경우 그 객체를 그대로 사용하고, 없을 경우 새로운 객체를 생성한다. 이것이 useBean 태그의 기능이다.
+>
+>
+>
+>scope 속성을 사용할 경우 속성의 값에 따라 서로 다른 기본 객체에 저장된다.
+>
+>- page : pageContext 기본 객체
+>- request : request 기본 객체
+>- session : session 기본 객체
+>- application : application 기본 객체
+>
+>
+
+**2. \<jsp:setProperty>**
+
+>
+>
+>```jsp
+><jsp:setProperty name="자바빈" property="이름" value="값" />
+>```
+>
+>
+>
+><태그의 속성>
+>
+>- name : 프로퍼티 값을 변경할 자바빈 객체의 이름. <jsp:useBean> 액션 태그의 id 속성에서 지정한 값을 사용
+>
+>- property : 값을 지정할 프로퍼티의 이름
+>
+>- value : 프로퍼티 값. 표현식 사용가능
+>
+>  
+
+**3. \<jsp:getProperty>**
+
+>
+>
+>```jsp
+><jsp:getProperty name="자바빈" property="이름" />
+>```
+>
+>
+>
+><태그의 속성>
+>
+>- name : <jsp:useBean> 액션 태그의 id 속성에서 지정한 값을 사용
+>- property : 값을 가져올 프로퍼티의 이름
+>
+>
+
+출처: https://all-record.tistory.com/105 
+
+
+
+## TDD(테스트 주도 개발)
+
+>- Test Driven Development
+>  - 테스트 주도 개발: 테스트가 개발을 이끌어 나간다.
+>
+>- 하나 작성하고 테스트하고 정상작동하면 넘어가는 식으로 하나씩 완성해나간다
+>- 테스트를 먼저 만들고 테스트를 통과하기 위한 것을 짜는 것 즉, 만드는 과정에서 우선 테스트를 작성하고 그걸 통과하는 코드를 만들고를 반복하면서 제대로 동작하는지에 대한 피드백을 적극적으로 받는 것이다.
+>
+>
+>
+>#### Junit
+>
+>:  Java의 대표적인 Testing Framework
+
+
+
+
+
+
+
+# JSTL
+
+
+
+##### 연산자
+
+>eq : ==
+>
+>ne : !=
+>
+>empty : null
+
+
+
+##### forEach
+
+> ```jsp
+> <c:forEach items="${list }" var="score">
+> 
+> </c:forEach>
+> ```
+>
+> 
+>
+> - list 가져와서 뿌려줌, List, 배열 요소를 순서대로 반복해서 처리 
+> - list 라는 덩어리에서 하나하나 score라는 변수로 값을 빼와서 담을것
+> - ${list } : jspscope중에 list라는 이름의 객체를 가져와 사용할것
+> - forEach, c: 으로 시작하는 태그 안에 주석을 쓰면 에러남 forEach 태그 안에 주석태그를 정의해두지 않았기때문. 
+> - c: 태그 바깥에서라도 \<c:forEach> 태그의 모양을 주석으로 쓰면 **jspl (c:태그) 이 html( <!-- --> ) 보다 먼저 동작하기 때문에 c: 태그로 인식 + 에러남**
+
+##### 구구단
+
+>i 라는 변수가 2부터 시작해 9까지 1(step)씩 증가한다
+>
+>```
+><h1>구구단</h1>
+>   
+>   <c:forEach var="i" begin="2" end="9" step="1">
+>   
+>   		<b>${i }단</b><br>
+>   		
+>   		<c:forEach var="j" begin="1" end="9">
+>   			${i } * ${j } = ${i * j }<br>
+>   		</c:forEach>
+>   		
+>   		<br>
+>   		
+>   </c:forEach>
+>```
+>
+>
+>
+>출력값 
+>
+>**2단**
+>2 * 1 = 2
+>2 * 2 = 4
+>2 * 3 = 6
+>2 * 4 = 8
+>2 * 5 = 10
+>2 * 6 = 12
+>2 * 7 = 14
+>2 * 8 = 16
+>2 * 9 = 18
+>
+>.
+>
+>.
+>
+>.
+>
+>**9단**
+
+
+
+
+
+##### choose
+
+>switch문과 비슷하지만 값을 출력하는 부분이 없기 때문에 if else문과 더 비슷함
+>
+>```jsp
+><c:choose>
+>   <c:when test="${score.name eq '이름20' }">
+>   	 <c:out value="${score.name }님!!"></c:out>
+>   </c:when>
+>   <c:when test="${score.name eq '이름30' }">
+>      <c:out value="${score.name }"></c:out>
+>   </c:when>                  
+>       <c:otherwise>
+>   <c:out value="누구지?"></c:out>
+>        </c:otherwise>
+></c:choose>
+>```
+>
+>
+
+
+
+##### if와 choose를 함께 사용시
+
+>
+>
+>```jsp
+> <td>
+>    
+>   <c:if test="${score.name eq '이름10' }">
+>       <c:out value="홍길동">홍길동</c:out>
+>   </c:if>
+>   
+>  <c:choose>
+>     <c:when test="${score.name eq '이름20' }">
+>         <c:out value="${score.name }님!!"></c:out>
+>      </c:when>
+>     <c:when test="${score.name eq '이름30' }">
+>        <c:out value="${score.name }"></c:out>
+>     </c:when>                  
+>     <c:otherwise>
+>          <c:out value="누구지?"></c:out>
+>     </c:otherwise>
+>  </c:choose>
+>     
+></td>
+>```
+>
+>결과값 : 홍길동 누구지?
+>
+>-- > 
+>
+>if와 choose는 별도이기 때문에 위에 if문에서 조건에 한번 걸리고
+>
+>아래의 choose의 otherwise에서 한번 걸리기 때문에 둘이 합쳐진
+>
+>"홍길동 누구지?" 가 출력됨
