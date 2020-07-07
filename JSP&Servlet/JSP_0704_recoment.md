@@ -109,6 +109,182 @@ VALUES(BOARDNOSEQ.NEXTVAL,
 
 biz에서 insert와 update 모두가 완료되어야 commit되도록 트랜젝션 처리도 해주어야함
 
+>해당글의 boardno를 받아와서 해당글의 그룹seq와
 >
+>해당 글 답글의 마지막 그룹seq가 같다면(즉 답글이 하나라면)
 >
+>업데이트가 필요하지 않고, 그게 아니라면 업데이트 해주어야함
 >
+>따라서 dao에 메서드가 하나 더 필요함
+
+
+
+- 삭제
+
+> delflag라는 컬럼을 하다 더 만들어 Y일때 N일때 다르게 표시하도록함
+>
+> ##### \<SQL>
+>
+> ```java
+> String UPDATE_SQL = " UPDATE ANSWERBOARD SET TITLE = ?, CONTENT = ?, WRITER = ? 						WHERE BOARDNO = ?";
+> ```
+>
+> 
+>
+> ##### \<JSTL>
+>
+> ```jsp
+> <c:choose>
+> 	
+>     <c:when test="${empty list }">
+> 		<tr>
+> 			<td>--------------작성된 글이 존재하지 않습니다-----------</td>
+> 		</tr>
+> 	</c:when>
+> 			
+>     <c:otherwise>
+> 		<c:forEach items = "${list }" var="dto">
+>             
+> 			<c:choose>
+> 				<c:when test="${dto.delflag eq 'Y' }">
+> 					<tr>
+> 						<td colspan="5" align="center">--------------작성된 글이 존재하지 않습니다-----------</td>
+> 					</tr>
+> 				</c:when>                
+> 				<c:otherwise>
+> 					<tr>
+> 						<td><input type="checkbox" name="chk" value="${dto.boardno }"></td>
+> 						<td>${dto.boardno }</td>
+> 						<td>	
+> 							<c:forEach begin="1" end ="${dto.titletab }">
+> 								&nbsp;
+> 							</c:forEach>
+> 							<a href="controller.do?command=detail&boardno=${dto.boardno }">${dto.title }</a>									
+> 						</td>
+> 						<td>${dto.writer }</td>
+> 						<td>${dto.regdate }</td>		
+> 					</tr>
+> 				</c:otherwise>                
+> 			</c:choose>
+>             
+> 		</c:forEach>
+> 	</c:otherwise>
+>     
+> </c:choose>
+> ```
+>
+> 
+
+
+
+- 게시판글에 댓글달기
+
+> ##### \<HTML>
+>
+> ```html
+> <!-- 
+> 	필요 요소
+> 	update : boardno
+> 	insert : title, content, writer, 부모의 boardno	
+>  -->
+>  <h1>답변 글 작성</h1>
+> 	
+> 	<form action="controller.do" method="post">
+> 	
+> 		<input type="hidden" name="command" value="answerwriteres">
+> 		
+> 		<input type="hidden" name="parentboardno" value="${dto.boardno }">
+> 		
+> 		<table border="1">
+> 			<tr>
+> 				<th>제목</th>
+> 				<td><input type="text" name="title" value="ㄴRE:${dto.title }"></td>
+> 			</tr>
+> 			<tr>
+> 				<th>작성자</th>
+> 				<td><input type="text" name="writer" value="${dto.writer }"></td>
+> 			</tr>
+> 			<tr>
+> 				<th>내용</th>
+> 				<td><textarea rows="10" cols="60" name="content">${dto.content }</textarea></td>
+> 			</tr>
+> 			<tr>
+> 				<td colspan="2" align="right">
+> 					<input type="submit" value="답변">
+> 					<input type="button" value="취소" onclick="">
+> 				</td>
+> 			</tr>
+> 		
+> 		</table>
+> 	
+> 	</form>
+> ```
+>
+> 
+>
+> ##### \<controller>
+>
+> ```javascript
+> else if (command.equals("answerwrite")) {
+> 			
+> 			int boardno = Integer.parseInt(request.getParameter("boardno"));
+> 			
+> 			AnswerDto dto = biz.selectOne(boardno);
+> 			
+> 			request.setAttribute("dto", dto);
+> 			dispatch("answerwrite.jsp", request, response);			
+> 			
+> 		} else if (command.equals("answerwriteres")) {
+> 			
+> 			int boardno = Integer.parseInt(request.getParameter("parentboardno"));
+> 			String title = request.getParameter("title");
+> 			String content = request.getParameter("content");
+> 			String writer = request.getParameter("writer");
+> 			
+> 			AnswerDto dto = new AnswerDto(boardno, 0, 0, 0, null, title, content, writer, null);
+> 			int res = biz.answerproc(dto);
+> 			
+> 			if(res > 0) {
+> 				response.sendRedirect("controller.do?command=list");
+> 			} else {
+> 				response.sendRedirect("controller.do?command=list");
+> 				System.out.println("시르패");
+> 			}
+> 			
+> 		}
+> ```
+>
+> 
+>
+> ##### \<SQL>
+>
+> ```java
+> String ANSWER_UPDATE_SQL = " UPDATE ANSWERBOARD SET GROUPSEQ = GROUPSEQ + 1 "
+> 	 + " WHERE GROUPNO = (SELECT GROUPNO FROM ANSWERBOARD WHERE BOARDNO =?) "
+> 	+ " AND GROUPSEQ > (SELECT GROUPSEQ FROM ANSWERBOARD WHERE BOARDNO = ?) ";
+> 	
+> String ANSWER_INSERT_SQL = " INSERT INTO ANSWERBOARD "
+> 		+" VALUES (BOARDNOSEQ.NEXTVAL, "
+> 		+" (SELECT GROUPNO FROM ANSWERBOARD WHERE BOARDNO = ?), "
+> 		+" (SELECT GROUPSEQ FROM ANSWERBOARD WHERE BOARDNO = ?) + 1, "
+> 		+" (SELECT TITLETAB + 1 FROM ANSWERBOARD WHERE BOARDNO = ?), "
+> 		+" 'N', ?, ?, ?, SYSDATE) ";
+> ```
+>
+> 
+>
+> ##### \<Biz>
+>
+> ```java
+> public int answerProc(AnswerDto dto) {
+> 		
+> 		int update = dao.answerUpdate(dto.getBoardno());
+> 		int insert = dao.answerInsert(dto);
+> 		
+> 		return update + insert;
+> 		
+> 	};
+> ```
+>
+> 
+
