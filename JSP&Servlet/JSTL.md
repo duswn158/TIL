@@ -278,3 +278,67 @@ op=+
 
 
 출처 : https://joswlv.github.io/2016/09/13/jsp_tag/
+
+
+
+## **fmt태그의 종류**
+
+
+
+| **기능**           | **태그**                                                    | **설명**                                     |
+| ------------------ | ----------------------------------------------------------- | -------------------------------------------- |
+| **숫자 날짜 형식** | formatnumber                                                | 숫자를 양식에 맞춰서 출력한다.               |
+| formatDate         | 날짜 정보를 담고 있는 객체를 포맷팅하여 출력할 때 사용한다. |                                              |
+| parseDate          | 문자열을 날짜로 파싱한다.                                   |                                              |
+| parseNumber        | 문자열을 수치로 파싱한다.                                   |                                              |
+| setTimeZone        | 시간대별로 시간을 처리할 수 있는 기능을 제공한다.           |                                              |
+| timeZone           | 시간대별로 시간을 처리할 수 있는 기능을 제공한다.           |                                              |
+| **로케일 지정**    | setLocale                                                   | 국제화 태그들이 사용할 로케일을 지정한다.    |
+| requestEncoding    | 요청 파라미터의 인코딩을 지정한다.                          |                                              |
+| **메시지 처리**    | bundle                                                      | 태그 몸체에서 사용할 리소스 번들을 지정한다. |
+| message(param)     | 메시지를 출력한다.                                          |                                              |
+| setBundle          | 특정 리소스 번들을 사용할 수 있도록 로딩한다.               |                                              |
+
+
+
+#### ▶ \<fmt:formatDate>
+
+> 날짜를 2013.08.22와 같은 형태로 출력하고자 할 경우 사용됨.
+>
+> value속성에 date를 넣어서 처리하기 위해서는 java.util.Date 클래스로 객체를 생성하는 것이 필수적이다.
+>
+> **- 선행조건**
+>
+> : <c:set var="now" value="<%=new java.util.Date()%>"/>
+>
+> ##### \<fmt:formatDate value="date"
+>
+> [**type** = "{time| date| both}"]
+>
+> [**dateStyle**="{default | short | medium | long | full}"]
+>
+> [**timeStyle**="{default | short | medium | long | full}"]
+>
+> [**pattern**="customPattern"]
+>
+> [**timeZone**="timeZone"]
+>
+> [**var**="변수 이름"]
+>
+> [**scope**="{page | request | session | application}"] **>**
+>
+> | **속성**      | **표현식** | **타입**                   | **설명**                                                     |
+> | ------------- | ---------- | -------------------------- | ------------------------------------------------------------ |
+> | **value**     | true       | java.util.Date             | 형식화될 Date와 time                                         |
+> | **type**      | true       | String                     | 형식화할 데이터 타입 셋 중 하나를 지정1. 시간(time) 2. 날짜(date) 3. 모두(both) |
+> | **dateStyle** | true       | String                     | 미리 정의된 날짜 형식으로 default \| short \| medium \| long \| full 중 하나 지정. |
+> | **timeStyle** | true       | String                     | 미리 정의된 날짜 형식으로 default \| short \| medium \| long \| full 중 하나 지정. |
+> | **pattern**   | true       | String                     | 사용자 지정 형식 스타일                                      |
+> | **timeZone**  | true       | String 또는 java.util.Date | 형식화 시간에 나타날 타임존                                  |
+> | **var**       | false      | String                     | 형식 출력 결과 문자열을 담는 scope에 해당하는 변수 이름      |
+> | **scope**     | false      | String                     | var 속성에 지정한 변수가 효력을 발휘할 수 있는 영역 지정     |
+>
+> 
+>
+> 참조 : https://m.blog.naver.com/PostView.nhn?blogId=imf4&logNo=220654812087&proxyReferer=https:%2F%2Fwww.google.com%2F
+
