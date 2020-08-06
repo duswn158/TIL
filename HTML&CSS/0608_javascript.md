@@ -218,7 +218,7 @@ function objTest(){
 		
 //4. 자주 쓰는 함수
 		
-//1) roFixed() : 실수형의 소수점 자리수를 지정하고 문자열로 반환
+//1) toFixed() : 실수형의 소수점 자리수를 지정하고 문자열로 반환
 		var number01 = 333.34567;
 		out.innerHTML += "toFixed : " + number01.toFixed(2) + "<br>"; // 소수점 두번째자리까지 출력됨
 		
