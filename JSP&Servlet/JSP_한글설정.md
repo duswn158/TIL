@@ -3,7 +3,7 @@
 > 1. jsp파일 생성시 next버튼 누르고 JSP Templates 링트를 누르고 -> JSP Files에서 UTF-8로 변경가능
 >
 > 2. 동일한 경로에서 Templates -> New JSP File(html 5) 클릭 -> 오른쪽에 Edit.. 버튼 ->     
->    <% request.setCharacterEncoding("${encoding}") %>
+>    <% request.setCharacterEncoding("${encoding}"); %>
 >    <% response.setContentType("text/html; charset=${encoding}"); %> 
 >
 >    두가지 입력 
